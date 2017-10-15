@@ -478,9 +478,14 @@ async def on_message(message):
             urlpayload=urllib.parse.quote_plus(contentstr)
             url='http://www.2dfan.com/subjects/search?keyword='+urlpayload
         #print(url)
-        info=TDFGetInfo()
-        buf=info.GetPage(url)
-        Result=info.ExtractInfo(buf)
+        try:
+            info=TDFGetInfo()
+            buf=info.GetPage(url)
+            Result=info.ExtractInfo(buf)
+        except:
+            await client.send_message(message.channel,'Emmmm....Something wrong')
+            print('Connect Error!')
+            return
         if(not buf):
             print('Get HTML is failed!')
         else:
