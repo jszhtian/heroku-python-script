@@ -12,6 +12,7 @@ from googletrans import Translator
 
 import discord
 
+BotVer='20171016'
 client = discord.Client()
 
 class VNDBGetInfo():
@@ -20,9 +21,11 @@ class VNDBGetInfo():
     def GetPage(self,url):
         self.url=url
         #print('input URL:'+url)
-        response=urllib.request.urlopen(url)
-        html=response.read()
-        return html
+        user_agent='Mozilla/5.0 (X11; Linux x86_64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/41.0.2272.89 Safari/537.36'
+        req=urllib.request.Request(url,None,{'User-Agent':user_agent})
+        response=urllib.request.urlopen(req)
+        page=response.read()
+        return page
     def ExtractInfo(self,buf):
         if not self.soup:
             try:
@@ -97,9 +100,11 @@ class BangumiGetInfo():
     def GetPage(self,url):
         self.url=url
         #print('input URL:'+url)
-        response=urllib.request.urlopen(url)
-        html=response.read()
-        return html
+        user_agent='Mozilla/5.0 (X11; Linux x86_64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/41.0.2272.89 Safari/537.36'
+        req=urllib.request.Request(url,None,{'User-Agent':user_agent})
+        response=urllib.request.urlopen(req)
+        page=response.read()
+        return page
     def ExtractInfo(self,buf):
         if not self.soup:
             try:
@@ -139,12 +144,67 @@ class BangumiGetInfo():
                 infolist.append(row.getText())
             return infolist
 
+class TDFGetInfo():
+    url=''
+    soup=None
+    def GetPage(self,url):
+        self.url=url
+        #print('input URL:'+url)
+        user_agent='Mozilla/5.0 (X11; Linux x86_64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/41.0.2272.89 Safari/537.36'
+        req=urllib.request.Request(url,None,{'User-Agent':user_agent})
+        response=urllib.request.urlopen(req)
+        page=response.read()
+        return page
+    def ExtractInfo(self,buf):
+        if not self.soup:
+            try:
+                self.soup=BeautifulSoup(buf,'html.parser')
+            except:
+                print('Soup failed to get information:'+self.url)
+                return
+        title=self.soup.title.string
+        #print(title)
+        Gamelist=[]
+        if title.startswith("游戏条目"):
+            Gamelist.append("List")
+            ul=self.soup.find('ul',attrs={'class':'media-list inline intro-list'})
+            lis=ul.find_all('li',attrs={'class':'media'})
+            #print(lis)
+            for li in lis:
+                try:
+                    Gamelist.append(li.div.h4.a.getText()+'|'+'Number:'+li.div.h4.a['href'][10:])
+                except:
+                    pass
+            return Gamelist
+        else:
+            infolist=['Game']
+            imgURL=''
+            divs=self.soup.find('div',attrs={'class':'span8'})
+            img=divs.find('div',attrs={'class':'media'})
+            imgsrc=img.find('img')
+            if(imgsrc):
+                imgURL=imgsrc['src']
+                if imgURL.find('?')!=-1:
+                    imgURL=imgURL[0:imgURL.find('?')]
+            infolist.append(imgURL)
+
+            titlediv=self.soup.find('div',attrs={'class':'navbar navbar-inner block-header no-border'})
+            infolist.append(titlediv.h3.getText())
+
+            div = divs.find('div', attrs={'class':'control-group'})
+            rows = div.find_all('p')
+            for row in rows:
+                result=re.sub(" +"," ",row.getText())
+                infolist.append(result)
+            return infolist
+
 
 @client.event
 async def on_ready():
     print('Logged in as')
     print(client.user.name)
     print(client.user.id)
+    print('Bot Ver:'+BotVer)
     print('------')
 
 @client.event
@@ -170,7 +230,7 @@ async def on_message(message):
     
     elif message.content.startswith('!ver'):
         await client.send_message(message.channel,'<@'+str(message.author.id)+'>')
-        await client.send_message(message.channel, 'Bot ver:'+'20171015')
+        await client.send_message(message.channel, 'Bot ver:'+BotVer)
 
     elif message.content.startswith('!translate'):
         await client.send_message(message.channel,'<@'+str(message.author.id)+'>')
@@ -248,11 +308,11 @@ async def on_message(message):
 
     elif message.content.startswith('!help'):
         await client.send_message(message.channel,'<@'+str(message.author.id)+'>')
-        payload="vndb|bangumi string:search string in VNDB.org/bangumi.tv"+'\n'
+        payload="vndb|bangumi|2df string:search string in VNDB.org/bangumi.tv"+'\n'
         payload+="info:get the Bot info"+'\n'
         payload+="ver:get the Bot version"+'\n'
         payload+="time:get the Bot server time"+'\n'
-        payload+="vndb|bangumi direct number:Direct access the number website in VNDB.org/bangumi.tv"+'\n'
+        payload+="vndb|bangumi|2df direct number:Direct access the number website in VNDB.org/bangumi.tv"+'\n'
         payload+="img imgURL:Google image lookup"+'\n'
         payload+="wiki String:search in wikipedia"+'\n'
         payload+="translate String:translate string to CHS."+'\n'
@@ -285,20 +345,46 @@ async def on_message(message):
             
             flag=Result[0]
             if flag=='List':
-                em=discord.Embed(title='GameList', description='possible game:'+contentstr, colour=0xDEADBF)
-                valuestr=''
+                
+                
                 if len(Result)>1:
-                    for line in Result:
-                        if line=='List':
-                            continue
-                        valuestr+=line
-                        valuestr+='\n'
-                    em.add_field(name="Game Name",value=valuestr)
-                    try:
-                        await client.send_message(message.channel,embed=em)
-                    except:
-                        await client.send_message(message.channel,'Out of Buffer! Change the search string.')
-                        await client.send_message(message.channel,url)
+                    if len(Result)>30:
+                        em=discord.Embed(title='GameList', description='possible game:'+contentstr, colour=0xDEADBF)
+                        em2=discord.Embed(title='GameList', description='possible game:'+contentstr, colour=0xDEADBF)
+                        valuestr1=''
+                        valuestr2=''
+                        for index in range(0,30):
+                            if Result[index]=='List':
+                                continue
+                            valuestr1+=Result[index]
+                            valuestr1+='\n'
+                        for index in range(31,len(Result)):
+                            valuestr2+=Result[index]
+                            valuestr2+='\n'
+                        em.add_field(name="Game Name",value=valuestr1)
+                        em2.add_field(name="Game Name",value=valuestr2)
+                        try:
+                            await client.send_message(message.channel,embed=em)
+                            await client.send_message(message.channel,embed=em2)
+                            await client.send_message(message.channel,url)
+                        except:
+                            await client.send_message(message.channel,'Out of Buffer! Change the search string.')
+                            await client.send_message(message.channel,url)
+                    else:
+                        valuestr=''
+                        em=discord.Embed(title='GameList', description='possible game:'+contentstr, colour=0xDEADBF)
+                        for line in Result:
+                            if line=='List':
+                                continue
+                            valuestr+=line
+                            valuestr+='\n'
+                        em.add_field(name="Game Name",value=valuestr)
+                        try:
+                            await client.send_message(message.channel,embed=em)
+                            await client.send_message(message.channel,url)
+                        except:
+                            await client.send_message(message.channel,'Out of Buffer! Change the search string.')
+                            await client.send_message(message.channel,url)
                 else:
                     await client.send_message(message.channel,'find nothing')
             if flag=='Game':
@@ -330,8 +416,8 @@ async def on_message(message):
         else:
             contentstr=message.content[9:]
             urlpayload=urllib.parse.quote_plus(contentstr)
-            url='http://bangumi.tv/subject_search/'+urlpayload+'?cat=all'
-        #print(url)
+            url='http://bangumi.tv/subject_search/'+urlpayload+'?cat=4'
+        
         info=BangumiGetInfo()
         buf=info.GetPage(url)
         Result=info.ExtractInfo(buf)
@@ -353,6 +439,7 @@ async def on_message(message):
                     em.add_field(name="Game Name",value=valuestr)
                     try:
                         await client.send_message(message.channel,embed=em)
+                        await client.send_message(message.channel,url)
                     except:
                         await client.send_message(message.channel,'Out of Buffer! Change the search string.')
                         await client.send_message(message.channel,url)
@@ -377,6 +464,62 @@ async def on_message(message):
                 except:
                      await client.send_message(message.channel,'Maybe too many description?')
                      await client.send_message(message.channel,url)
+
+    
+    elif message.content.startswith('!2df'):
+        if message.content=='!2df' or message.content=='!2df direct ':
+            await client.send_message(message.channel,'Emmmm... No parameter found.')
+            return
+        elif message.content.startswith('!2df direct '):
+            contentstr=message.content[12:]
+            url='http://www.2dfan.com/subjects/'+contentstr
+        else:
+            contentstr=message.content[5:]
+            urlpayload=urllib.parse.quote_plus(contentstr)
+            url='http://www.2dfan.com/subjects/search?keyword='+urlpayload
+        #print(url)
+        info=TDFGetInfo()
+        buf=info.GetPage(url)
+        Result=info.ExtractInfo(buf)
+        if(not buf):
+            print('Get HTML is failed!')
+        else:
+            await client.send_message(message.channel,'<@'+str(message.author.id)+'>')
+            
+            flag=Result[0]
+            if flag=='List':
+                em=discord.Embed(title='GameList', description='possible game:'+contentstr, colour=0xDEADBF)
+                valuestr=''
+                if len(Result)>1:
+                    for line in Result:
+                        if line=='List':
+                            continue
+                        valuestr+=line
+                        valuestr+='\n'
+                    em.add_field(name="Game Name",value=valuestr)
+                    try:
+                        await client.send_message(message.channel,embed=em)
+                        await client.send_message(message.channel,url)
+                    except:
+                        await client.send_message(message.channel,'Out of Buffer! Change the search string.')
+                        await client.send_message(message.channel,url)
+                else:
+                    await client.send_message(message.channel,'find nothing')
+            if flag=='Game':
+                #print(Result)
+                em=discord.Embed(title='GameInfo',description='Gameinfo about '+Result[2],colour=0xDEADBF)
+                if len(Result[1])!=0:
+                    imgUrl=Result[1]
+                    #print(imgUrl)
+                    em.set_image(url=imgUrl)
+                payload=''
+                for index in range(len(Result)):
+                    if index!=0 and index!=1 and index!=2:
+                        payload+=Result[index]
+                em.add_field(name='Basic Info:',value=payload)
+                await client.send_message(message.channel,embed=em)
+                await client.send_message(message.channel,url)
+
                  
     elif message.content.startswith('!'):
         await client.send_message(message.channel,'What are you doing?')
