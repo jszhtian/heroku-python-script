@@ -12,6 +12,7 @@ from googletrans import Translator
 
 import discord
 
+BotVer='20171016'
 client = discord.Client()
 
 class VNDBGetInfo():
@@ -203,6 +204,7 @@ async def on_ready():
     print('Logged in as')
     print(client.user.name)
     print(client.user.id)
+    print('Bot Ver:'+BotVer)
     print('------')
 
 @client.event
@@ -228,7 +230,7 @@ async def on_message(message):
     
     elif message.content.startswith('!ver'):
         await client.send_message(message.channel,'<@'+str(message.author.id)+'>')
-        await client.send_message(message.channel, 'Bot ver:'+'20171015')
+        await client.send_message(message.channel, 'Bot ver:'+BotVer)
 
     elif message.content.startswith('!translate'):
         await client.send_message(message.channel,'<@'+str(message.author.id)+'>')
