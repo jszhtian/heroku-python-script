@@ -530,4 +530,4 @@ async def on_message(message):
         await client.send_message(message.channel,'What are you doing?')
 
 
-client.run('MzY4NzA0MzcyMjgyMDk3NjY1.DMPBwA.i5k4WqVdSDnSxu84eLS28ed6QHg')
+client.run('MzY4NzA0MzcyMjgyMDk3NjY1.DMT5fg.dc4LhVnDd_2gWlqfSQCBCxTufzQ')
