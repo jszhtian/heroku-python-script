@@ -8,16 +8,13 @@ class SQLServices():
 	dbcur=None
 	def Connect(self):
 		try:
-			urlparse.uses_netloc.append("postgres")
-			url = urlparse.urlparse(os.environ["DATABASE_URL"])
-
 			self.dbconn = psycopg2.connect(
-    			database=url.path[1:],
-    			user=url.username,
-    			password=url.password,
-    			host=url.hostname,
-    			port=url.port
-				)
+    			database="dfctn7g5et59he",
+    			user="xknobmcpqbhtcv",
+    			password="36eda7a8ae0c7240c202cc8b264e5046114f136c85b20652907a1db5228ebd73",
+    			host="ec2-79-125-125-97.eu-west-1.compute.amazonaws.com",
+    			port="5432"
+			)
 			self.dbcur=self.dbconn.cursor(cursor_factory=psycopg2.extras.DictCursor)
 			return True
 		except:
