@@ -16,7 +16,10 @@ from Extraction import BangumiGetInfo
 
 import discord
 
-BotVer='20171016'
+def chunks(arr, n):
+    return [arr[i:i+n] for i in range(0, len(arr), n)]
+
+BotVer='20171018'
 client = discord.Client()
 
 @client.event
@@ -61,6 +64,182 @@ async def on_message(message):
         del sql
         await client.send_message(message.channel, 'Usage:'+str(Usage)+'/10000')
         
+    elif message.content.startswith('!listmemo'):
+        await client.send_message(message.channel,'<@'+str(message.author.id)+'>')
+        sql=SQLServices()
+        ret=sql.Connect()
+        if not ret:
+            await client.send_message(message.channel,'Connect to SQL Server is failed!')
+            sql.Disconnect()
+            del sql
+            return
+        MemoList=sql.ListMemo(message.author.id)
+        if len(MemoList)==0:
+            await client.send_message(message.channel,"No memorandum in List")
+        elif MemoList[0]=="SQL Query executes Fail!":
+            await client.send_message(message.channel,'SQL Query executes Fail!')
+            sql.Disconnect()
+            del sql
+            return
+        else:
+            #await client.send_message(message.channel,"ID||Memo")
+            chks=chunks(MemoList,25)
+            for chk in chks:
+                out=''
+                for line in chk:
+                    info=line.split('||',1)
+                    out+='ID:'+info[0]+'\n'
+                    out+='Memo:'+info[1]+'\n'
+                    out+='\n'
+                await client.send_message(message.channel,embed=discord.Embed(title='Memo List:', description=out, colour=0xDEADBF))
+        sql.Disconnect()
+        del sql
+
+    elif message.content.startswith('!listres'):
+        await client.send_message(message.channel,'<@'+str(message.author.id)+'>')
+        sql=SQLServices()
+        ret=sql.Connect()
+        if not ret:
+            await client.send_message(message.channel,'Connect to SQL Server is failed!')
+            sql.Disconnect()
+            del sql
+            return
+        ResList=sql.ListRes()
+        if len(ResList)==0:
+            await client.send_message(message.channel,"No resources in List")
+        elif ResList[0]=="SQL Query executes Fail!":
+            await client.send_message(message.channel,'SQL Query executes Fail!')
+            sql.Disconnect()
+            del sql
+            return
+        else:
+            #await client.send_message(message.channel,"ID||Name||Link")
+            chks=chunks(ResList,25)
+            for chk in chks:
+                out=''
+                for line in chk:
+                    info=line.split('||',2)
+                    out+="ID:"+info[0]+'\n'
+                    out+="Name:"+info[1]+'\n'
+                    out+=info[2]+'\n'
+                    out+='\n'
+                await client.send_message(message.channel,embed=discord.Embed(title='Resource List:', description=out, colour=0xDEADBF))
+        sql.Disconnect()
+        del sql
+    
+    elif message.content.startswith('!addres'):
+        await client.send_message(message.channel,'<@'+str(message.author.id)+'>')
+        RAWRES=message.content[8:]
+        infolist=RAWRES.split('|',1)
+        if len(infolist)!=2:
+            await client.send_message(message.channel,'Parameter Error!')
+            return
+        sql=SQLServices()
+        ret=sql.Connect()
+        if not ret:
+            await client.send_message(message.channel,'Connect to SQL Server is failed!')
+            sql.Disconnect()
+            del sql
+            return
+        res=sql.AddRes(infolist[0],infolist[1])
+        if not res:
+            await client.send_message(message.channel,'SQL Query executes Fail!')
+            sql.Disconnect()
+            del sql
+            return
+        else:
+            await client.send_message(message.channel,"Add Res:"+infolist[0])
+        sql.Disconnect()
+        del sql
+
+    elif message.content.startswith('!updmemo'):
+        await client.send_message(message.channel,'<@'+str(message.author.id)+'>')
+        RAWRES=message.content[9:]
+        infolist=RAWRES.split('|',1)
+        if len(infolist)!=2:
+            await client.send_message(message.channel,'Parameter Error!')
+            return
+        sql=SQLServices()
+        ret=sql.Connect()
+        if not ret:
+            await client.send_message(message.channel,'Connect to SQL Server is failed!')
+            sql.Disconnect()
+            del sql
+            return
+        res=sql.UpdMemo(infolist[0],message.author.id,infolist[1])
+        if not res:
+            await client.send_message(message.channel,'SQL Query executes Fail!')
+            sql.Disconnect()
+            del sql
+            return
+        else:
+            await client.send_message(message.channel,"UPD Memo:"+infolist[0])
+        sql.Disconnect()
+        del sql
+
+    elif message.content.startswith('!delres'):
+        await client.send_message(message.channel,'<@'+str(message.author.id)+'>')
+        RAWRES=message.content[8:]
+        sql=SQLServices()
+        ret=sql.Connect()
+        if not ret:
+            await client.send_message(message.channel,'Connect to SQL Server is failed!')
+            sql.Disconnect()
+            del sql
+            return
+        res=sql.DelRes(RAWRES)
+        if not res:
+            await client.send_message(message.channel,'SQL Query executes Fail!')
+            sql.Disconnect()
+            del sql
+            return
+        else:
+            await client.send_message(message.channel,"DEL Res:"+RAWRES)
+        sql.Disconnect()
+        del sql
+
+    elif message.content.startswith('!addmemo'):
+        await client.send_message(message.channel,'<@'+str(message.author.id)+'>')
+        RAWStr=message.content[9:]
+        sql=SQLServices()
+        ret=sql.Connect()
+        if not ret:
+            await client.send_message(message.channel,'Connect to SQL Server is failed!')
+            sql.Disconnect()
+            del sql
+            return
+        res=sql.AddMemo(message.author.id,RAWStr)
+        if not res:
+            await client.send_message(message.channel,'SQL Query executes Fail!')
+            sql.Disconnect()
+            del sql
+            return
+        else:
+            await client.send_message(message.channel,"Add Memo:"+RAWStr)
+        sql.Disconnect()
+        del sql
+
+    elif message.content.startswith('!delmemo'):
+        await client.send_message(message.channel,'<@'+str(message.author.id)+'>')
+        RAWRES=message.content[9:]
+        sql=SQLServices()
+        ret=sql.Connect()
+        if not ret:
+            await client.send_message(message.channel,'Connect to SQL Server is failed!')
+            sql.Disconnect()
+            del sql
+            return
+        res=sql.DelMemo(message.author.id,RAWRES)
+        if not res:
+            await client.send_message(message.channel,'SQL Query executes Fail!')
+            sql.Disconnect()
+            del sql
+            return
+        else:
+            await client.send_message(message.channel,"DEL Memo:"+RAWRES)
+        sql.Disconnect()
+        del sql
+
     elif message.content.startswith('!sqlcleanup'):
         await client.send_message(message.channel,'<@'+str(message.author.id)+'>')
         sql=SQLServices()
@@ -175,6 +354,11 @@ async def on_message(message):
         payload+="translate String:translate string to CHS."+'\n'
         payload+="sqlusage:Get information about SQL server usage."+'\n'
         payload+="sqlcleanup:delete all old records(>45 Days)."+'\n'
+        payload+="addres resName|resLink: add resource record"+'\n'
+        payload+="delres ID:Delete the res record"+'\n'
+        payload+="addmemo string:add string to memo"+'\n'
+        payload+="delmemo ID:Delete the memo record"+'\n'
+        payload+="updmemo ID|string:Update the memo record with ID and record"+'\n'
         payload+="y2b string:Search the string in youtube.com"
         em=discord.Embed(title='Function List:',description=payload,colour=0xDEADBF)
         await client.send_message(message.channel, embed=em)
@@ -204,38 +388,15 @@ async def on_message(message):
             
             flag=Result[0]
             if flag=='List':
-                
-                
                 if len(Result)>1:
-                    if len(Result)>30:
-                        em=discord.Embed(title='GameList', description='possible game:'+contentstr, colour=0xDEADBF)
-                        em2=discord.Embed(title='GameList', description='possible game:'+contentstr, colour=0xDEADBF)
-                        valuestr1=''
-                        valuestr2=''
-                        for index in range(0,30):
-                            if Result[index]=='List':
-                                continue
-                            valuestr1+=Result[index]
-                            valuestr1+='\n'
-                        for index in range(31,len(Result)):
-                            valuestr2+=Result[index]
-                            valuestr2+='\n'
-                        em.add_field(name="Game Name",value=valuestr1)
-                        em2.add_field(name="Game Name",value=valuestr2)
-                        try:
-                            await client.send_message(message.channel,embed=em)
-                            await client.send_message(message.channel,embed=em2)
-                            await client.send_message(message.channel,url)
-                        except:
-                            await client.send_message(message.channel,'Out of Buffer! Change the search string.')
-                            await client.send_message(message.channel,url)
-                    else:
+                    chks=chunks(Result,30)
+                    for chk in chks:
                         valuestr=''
                         em=discord.Embed(title='GameList', description='possible game:'+contentstr, colour=0xDEADBF)
-                        for line in Result:
-                            if line=='List':
+                        for li in chk:
+                            if li=='List':
                                 continue
-                            valuestr+=line
+                            valuestr+=li
                             valuestr+='\n'
                         em.add_field(name="Game Name",value=valuestr)
                         try:

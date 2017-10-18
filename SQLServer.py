@@ -31,36 +31,93 @@ class SQLServices():
 			return False
 		if not self.dbconn:
 			return False
-	def DelMemo(self,ID):
+		try:
+			self.dbcur.execute('INSERT INTO memorandum("String", "UserID")VALUES (%s, %s);',(String,UserID,))
+			self.dbconn.commit()
+			return True
+		except:
+			self.dbconn.rollback()
+			return False
+	def DelMemo(self,UserID,ID):
 		if not self.dbcur:
 			return False
 		if not self.dbconn:
+			return False
+		try:
+			self.dbcur.execute('DELETE FROM memorandum WHERE ("ID"=%s AND "UserID"=%s);',(ID,UserID,))
+			self.dbconn.commit()
+			return True
+		except:
+			self.dbconn.rollback()
 			return False
 	def UpdMemo(self,ID,UserID,String):
 		if not self.dbcur:
 			return False
 		if not self.dbconn:
 			return False
+		try:
+			self.dbcur.execute('UPDATE memorandum SET "String"=%s WHERE ("ID"=%s and "UserID"=%s);',(String,ID,UserID,))
+			self.dbconn.commit()
+			return True
+		except:
+			self.dbconn.rollback()
+			return False
 	def ListMemo(self,UserID):
-		pass
+		resList=[]
+		try:
+			self.dbcur.execute('SELECT "ID", "String" FROM memorandum WHERE ("UserID"=%s);',(UserID,))
+			res=self.dbcur.fetchall()
+			for rec in res:
+				line=str(rec['ID'])+'||'+str(rec['String'])
+				resList.append(line)
+			return resList
+		except:
+			resList.clear()
+			resList.append("SQL Query executes Fail!")
+			return resList
 	def AddRes(self,Name,Link):
 		if not self.dbcur:
 			return False
 		if not self.dbconn:
+			return False
+		try:
+			self.dbcur.execute('INSERT INTO resource("Name", "Link")VALUES (%s, %s);',(Name,Link,))
+			self.dbconn.commit()
+			return True
+		except:
+			self.dbconn.rollback()
 			return False
 	def DelRes(self,ID):
 		if not self.dbcur:
 			return False
 		if not self.dbconn:
 			return False
+		try:
+			self.dbcur.execute('DELETE FROM resource WHERE ("ID"=%s);',(ID,))
+			self.dbconn.commit()
+			return True
+		except:
+			self.dbconn.rollback()
+			return False
+
 	def ListRes(self):
-		pass
+		resList=[]
+		try:
+			self.dbcur.execute('SELECT "ID", "Name", "Link", "Stamp" FROM resource;')
+			res=self.dbcur.fetchall()
+			for rec in res:
+				line=str(rec['ID'])+'||'+str(rec['Name'])+'||'+str(rec['Link'])
+				resList.append(line)
+			return resList
+		except:
+			resList.clear()
+			resList.append("SQL Query executes Fail!")
+			return resList
 	def CleanUp(self):
 		if not self.dbcur:
 			return False
 		if not self.dbconn:
 			return False
-		print("Start cleanup")
 		self.dbcur.execute('select "ID" from memorandum WHERE "Stamp"+interval \'45 day\'<now()')
 		res1=self.dbcur.fetchall()
 		self.dbcur.execute('select "ID" from resource WHERE "Stamp"+interval \'45 day\'<now()')
@@ -69,7 +126,6 @@ class SQLServices():
 			for rec in res1:
 				#dosomthing
 				tar=str(rec['ID'])
-				print("from memorandum DEL ID:"+tar)
 				self.dbcur.execute('DELETE FROM memorandum WHERE ("ID"=%s)',(tar,))
 			print("Start cleanup resource")
 			for rec in res2:
@@ -87,7 +143,6 @@ class SQLServices():
 		if not self.dbconn:
 			return -1
 		try:
-			print("Start count")
 			self.dbcur.execute('SELECT count(*) as Num FROM memorandum;')
 			res1=self.dbcur.fetchone()
 			num=int(res1[0])
