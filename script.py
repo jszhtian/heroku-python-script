@@ -2,6 +2,7 @@
 #coding:utf-8
 
 import urllib.parse
+from requests import get
 import urllib.request
 import asyncio
 import re
@@ -297,8 +298,14 @@ async def on_message(message):
         contentstr=message.content[5:]
         query_string=urllib.parse.quote_plus(contentstr)
         url="https://www.google.com/searchbyimage?&image_url="+query_string
-        user_agent='Mozilla/5.0 (X11; Linux x86_64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/41.0.2272.89 Safari/537.36'
-        req=urllib.request.Request(url,None,{'User-Agent':user_agent})
+        #user_agent='Mozilla/5.0 (Windows; U; Windows NT 5.1; en-US; rv:1.9.0.7) Gecko/2009021910 Firefox/3.0.7'
+        hdr = {'User-Agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/58.0.3029.110 Safari/537.36 Edge/16.16299',
+        'Accept': 'text/html,application/xhtml+xml,application/xml;q=0.9,*/*;q=0.8',
+        'Referer': 'https://www.google.com',
+        'Accept-Charset': 'utf-8;q=0.7,*;q=0.3',
+        'Accept-Encoding': 'none',
+        'Connection': 'keep-alive'}
+        req=urllib.request.Request(url,None,hdr)
         response=urllib.request.urlopen(req)
         page=response.read()
         soup=BeautifulSoup(page,'html.parser')
