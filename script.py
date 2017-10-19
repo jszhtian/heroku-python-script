@@ -45,7 +45,7 @@ async def on_message(message):
         await client.send_message(message.channel, 'USER:'+client.user.name)
         await client.send_message(message.channel, 'ID:'+client.user.id)
 
-    elif message.content.startswith('<@'+str(client.user.id)+'>'):
+    elif message.content.startswith('<@'):
         if message.content.find(str(client.user.id))!=-1:
             RAW=message.content
             info=RAW.split('>',1)
