@@ -45,6 +45,16 @@ async def on_message(message):
         await client.send_message(message.channel, 'USER:'+client.user.name)
         await client.send_message(message.channel, 'ID:'+client.user.id)
 
+    elif message.content.startswith('<@'+str(client.user.id)+'>'):
+        RAW=message.content
+        info=RAW.split('>',1)
+        if len(info)!=2:
+            return
+        contant=info[1]
+        if contant.find('抱抱'):
+            await client.send_message(message.channel,'<@'+str(message.author.id)+'>')
+            await client.send_message(message.channel, 'Emmmm...Escape!')
+
     elif message.content.startswith('%sqlusage'):
         await client.send_message(message.channel,'<@'+str(message.author.id)+'>')
         sql=SQLServices()
