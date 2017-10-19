@@ -51,7 +51,7 @@ async def on_message(message):
         if len(info)!=2:
             return
         contant=info[1]
-        if contant.find('抱抱'):
+        if contant.find('抱抱')!=-1:
             await client.send_message(message.channel,'<@'+str(message.author.id)+'>')
             await client.send_message(message.channel, 'Emmmm...Escape!')
 
