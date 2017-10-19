@@ -40,12 +40,12 @@ async def on_message(message):
     #            counter += 1
     #    await client.edit_message(tmp, 'You have {} messages.'.format(counter))
 
-    if message.content.startswith('!info'):
+    if message.content.startswith('#info'):
         await client.send_message(message.channel,'<@'+str(message.author.id)+'>')
         await client.send_message(message.channel, 'USER:'+client.user.name)
         await client.send_message(message.channel, 'ID:'+client.user.id)
 
-    elif message.content.startswith('!sqlusage'):
+    elif message.content.startswith('#sqlusage'):
         await client.send_message(message.channel,'<@'+str(message.author.id)+'>')
         sql=SQLServices()
         ret=sql.Connect()
@@ -64,7 +64,7 @@ async def on_message(message):
         del sql
         await client.send_message(message.channel, 'Usage:'+str(Usage)+'/10000')
         
-    elif message.content.startswith('!listmemo'):
+    elif message.content.startswith('#listmemo'):
         await client.send_message(message.channel,'<@'+str(message.author.id)+'>')
         sql=SQLServices()
         ret=sql.Connect()
@@ -95,7 +95,7 @@ async def on_message(message):
         sql.Disconnect()
         del sql
 
-    elif message.content.startswith('!listres'):
+    elif message.content.startswith('#listres'):
         await client.send_message(message.channel,'<@'+str(message.author.id)+'>')
         sql=SQLServices()
         ret=sql.Connect()
@@ -127,7 +127,7 @@ async def on_message(message):
         sql.Disconnect()
         del sql
     
-    elif message.content.startswith('!addres'):
+    elif message.content.startswith('#addres'):
         await client.send_message(message.channel,'<@'+str(message.author.id)+'>')
         RAWRES=message.content[8:]
         infolist=RAWRES.split('|',1)
@@ -152,7 +152,7 @@ async def on_message(message):
         sql.Disconnect()
         del sql
 
-    elif message.content.startswith('!updmemo'):
+    elif message.content.startswith('#updmemo'):
         await client.send_message(message.channel,'<@'+str(message.author.id)+'>')
         RAWRES=message.content[9:]
         infolist=RAWRES.split('|',1)
@@ -177,7 +177,7 @@ async def on_message(message):
         sql.Disconnect()
         del sql
 
-    elif message.content.startswith('!delres'):
+    elif message.content.startswith('#delres'):
         await client.send_message(message.channel,'<@'+str(message.author.id)+'>')
         RAWRES=message.content[8:]
         sql=SQLServices()
@@ -198,7 +198,7 @@ async def on_message(message):
         sql.Disconnect()
         del sql
 
-    elif message.content.startswith('!addmemo'):
+    elif message.content.startswith('#addmemo'):
         await client.send_message(message.channel,'<@'+str(message.author.id)+'>')
         RAWStr=message.content[9:]
         sql=SQLServices()
@@ -219,7 +219,7 @@ async def on_message(message):
         sql.Disconnect()
         del sql
 
-    elif message.content.startswith('!delmemo'):
+    elif message.content.startswith('#delmemo'):
         await client.send_message(message.channel,'<@'+str(message.author.id)+'>')
         RAWRES=message.content[9:]
         sql=SQLServices()
@@ -240,7 +240,7 @@ async def on_message(message):
         sql.Disconnect()
         del sql
 
-    elif message.content.startswith('!sqlcleanup'):
+    elif message.content.startswith('#sqlcleanup'):
         await client.send_message(message.channel,'<@'+str(message.author.id)+'>')
         sql=SQLServices()
         ret=sql.Connect()
@@ -259,16 +259,16 @@ async def on_message(message):
         del sql
         await client.send_message(message.channel, 'CleanUp finish!')
 
-    elif message.content.startswith('!time'):
+    elif message.content.startswith('#time'):
         await client.send_message(message.channel,'<@'+str(message.author.id)+'>')
         date=time.strftime('%Y-%m-%d %H:%M:%S',time.localtime(time.time()))
         await client.send_message(message.channel, 'Bot Server date:'+date)
     
-    elif message.content.startswith('!ver'):
+    elif message.content.startswith('#ver'):
         await client.send_message(message.channel,'<@'+str(message.author.id)+'>')
         await client.send_message(message.channel, 'Bot ver:'+BotVer)
 
-    elif message.content.startswith('!translate'):
+    elif message.content.startswith('#translate'):
         await client.send_message(message.channel,'<@'+str(message.author.id)+'>')
         contentStr=message.content[11:]
         try:          
@@ -278,8 +278,8 @@ async def on_message(message):
         except:
             await client.send_message(message.channel,'Emmmm... Something wrong?')
 
-    elif message.content.startswith('!img'):
-        if message.content=='!img':
+    elif message.content.startswith('#img'):
+        if message.content=='#img':
             await client.send_message(message.channel,'Emmmm... No parameter found.')
             return
         await client.send_message(message.channel,'<@'+str(message.author.id)+'>')
@@ -302,8 +302,8 @@ async def on_message(message):
 
 
 
-    elif message.content.startswith('!y2b'):
-        if message.content=='!y2b':
+    elif message.content.startswith('#y2b'):
+        if message.content=='#y2b':
             await client.send_message(message.channel,'Emmmm... No parameter found.')
             return
         await client.send_message(message.channel,'<@'+str(message.author.id)+'>')
@@ -314,9 +314,9 @@ async def on_message(message):
         await client.send_message(message.channel, "Possible video:")
         await client.send_message(message.channel, "http://www.youtube.com/watch?v=" + search_results[0])
     
-    elif message.content.startswith('!wiki'):
+    elif message.content.startswith('#wiki'):
         await client.send_message(message.channel,'<@'+str(message.author.id)+'>')
-        if message.content=='!wiki':
+        if message.content=='#wiki':
             await client.send_message(message.channel,'Emmmm... No parameter found.')
             return
         wikipedia.set_lang("zh")
@@ -342,7 +342,7 @@ async def on_message(message):
             await client.send_message(message.channel,'404 Not Found!')
         
 
-    elif message.content.startswith('!help'):
+    elif message.content.startswith('#help'):
         await client.send_message(message.channel,'<@'+str(message.author.id)+'>')
         payload="vndb|bangumi|2df string:search string in VNDB.org/bangumi.tv"+'\n'
         payload+="info:get the Bot info"+'\n'
@@ -363,11 +363,11 @@ async def on_message(message):
         em=discord.Embed(title='Function List:',description=payload,colour=0xDEADBF)
         await client.send_message(message.channel, embed=em)
 
-    elif message.content.startswith('!vndb'):
-        if message.content=='!vndb' or message.content=='!vndb direct ':
+    elif message.content.startswith('#vndb'):
+        if message.content=='#vndb' or message.content=='#vndb direct ':
             await client.send_message(message.channel,'Emmmm... No parameter found.')
             return
-        elif message.content.startswith('!vndb direct '):
+        elif message.content.startswith('#vndb direct '):
             contentstr=message.content[13:]
             if contentstr.startswith('v'):
                 url='https://vndb.org/'+contentstr
@@ -426,11 +426,11 @@ async def on_message(message):
                      await client.send_message(message.channel,'Maybe too many description?')
                      await client.send_message(message.channel,url)
     
-    elif message.content.startswith('!bangumi'):
-        if message.content=='!bangumi' or message.content=='!bangumi direct ':
+    elif message.content.startswith('#bangumi'):
+        if message.content=='#bangumi' or message.content=='#bangumi direct ':
             await client.send_message(message.channel,'Emmmm... No parameter found.')
             return
-        elif message.content.startswith('!bangumi direct '):
+        elif message.content.startswith('#bangumi direct '):
             contentstr=message.content[16:]
             url='http://bangumi.tv/subject/'+contentstr
         else:
@@ -486,11 +486,11 @@ async def on_message(message):
                      await client.send_message(message.channel,url)
 
     
-    elif message.content.startswith('!2df'):
-        if message.content=='!2df' or message.content=='!2df direct ':
+    elif message.content.startswith('#2df'):
+        if message.content=='#2df' or message.content=='#2df direct ':
             await client.send_message(message.channel,'Emmmm... No parameter found.')
             return
-        elif message.content.startswith('!2df direct '):
+        elif message.content.startswith('#2df direct '):
             contentstr=message.content[12:]
             url='http://www.2dfan.com/subjects/'+contentstr
         else:
@@ -546,7 +546,7 @@ async def on_message(message):
                 await client.send_message(message.channel,url)
 
                  
-    elif message.content.startswith('!'):
+    elif message.content.startswith('#'):
         await client.send_message(message.channel,'What are you doing?')
 
 
